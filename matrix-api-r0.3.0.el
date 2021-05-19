@@ -1309,7 +1309,11 @@ TYPING-P should be t or nil."
   "Return HTTPS URL for MXI URI to be accessed through SESSION."
   (pcase-let* (((eieio server) session)
                (`(,protocol _ ,mxc-server ,file) (split-string uri "/")))
-    (format$ "https://$server/_matrix/media/v1/download/$mxc-server/$file")))
+    ;; do not add the protocol if the server already contains it
+    (if (string-match "http.*://.*" server )
+        (format$ "$server/_matrix/media/v1/download/$mxc-server/$file")
+      (format$ "https://$server/_matrix/media/v1/download/$mxc-server/$file"))
+    ))
 
 (defun matrix-upload (room path)
   "Upload file at PATH to SESSION's server."
